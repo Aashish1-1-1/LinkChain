@@ -1,4 +1,4 @@
-package main
+package BlockChain
 
 import(
 	"fmt"
@@ -21,6 +21,10 @@ type Blockchain struct{
 	genesis Block
 	chain []Block
 	difficulty int
+}
+type Jsondata struct{
+	Platform string `json:platform`
+	Link interface{} `json:link`
 }
 
 func (b Block) calculateHash()string{
@@ -49,11 +53,10 @@ func CreateBlockchain(difficulty int) Blockchain{
 	}
 }
 
-func (b *Blockchain) addBlock(from string,to string, amount float64){
+func (b *Blockchain) AddBlock(platform string,Link string){
 	blockData :=map[string]interface{}{
-		"from": from,
-		"to": to,
-		"amount":amount,
+		"Platform": platform,
+		"Link": Link,
 	}
 	lastBlock := b.chain[len(b.chain)-1]
 	newBlock := Block{
@@ -65,7 +68,7 @@ func (b *Blockchain) addBlock(from string,to string, amount float64){
 	b.chain = append(b.chain,newBlock)
 }
 
-func (b Blockchain) isValid() bool{
+func (b Blockchain) IsValid() bool{
 	for i:=range b.chain[1:]{
 		previousBlock:=b.chain[i]
 		currentBlock:=b.chain[i+1]
@@ -75,15 +78,27 @@ func (b Blockchain) isValid() bool{
 	}
 	return true
 }
-func (b Blockchain) printBlockchain(){
-	for i:= range b.chain {
-		fmt.Println(b.chain[i].data)
+func (b Blockchain) GetBlockchainData() []Jsondata {
+	var jsonData []Jsondata
+	for _, block := range b.chain {
+		platform := ""
+		link := ""
+		if platformVal, ok := block.data["Platform"]; ok {
+			platform = platformVal.(string)
+		}
+		if linkVal, ok := block.data["Link"]; ok {
+			link = linkVal.(string)
+		}
+		jsonData = append(jsonData, Jsondata{Platform: platform, Link: link})
 	}
+	return jsonData
 }
-func main(){
-	blockChain:= CreateBlockchain(3)
-	blockChain.addBlock("Aashish","Shikhar",5)
-	blockChain.addBlock("Shikhar","Shankhar",10)
-	blockChain.printBlockchain()
-	fmt.Println(blockChain.isValid())
-}
+//func main(){
+//	blockChain:= CreateBlockchain(3)
+//	blockChain.addBlock("Github","https://github.com/Aashish1-1-1")
+//	blockChain.addBlock("Linkedln","https://linkedln.com/Aashish1-1-1")
+//	blockChain.addBlock("Instagram","https://instagram.com/Blessadhikari")
+//	blockChain.addBlock("FaceBook","https://facebook.com/Blessadhikari")
+//	blockChain.printBlockchain()
+//	fmt.Println(blockChain.isValid())
+//}
