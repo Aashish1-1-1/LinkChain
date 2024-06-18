@@ -33,7 +33,6 @@ func MakeBlockChain(){
 	for{
 		<-throw
 		data := blockChain.GetBlockchainData()
-		fmt.Println(data)
 	 	if(blockChain.IsValid()){
 			jsondata <- data
 		}
