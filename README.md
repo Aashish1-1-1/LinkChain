@@ -23,4 +23,8 @@ sudo docker run -p 8080:8080 linkchain
 ## Question?
 Is it scalable somehow?
 
+## Reference
+BlockChain [article](https://blog.logrocket.com/build-blockchain-with-go/)
+GoConcurrency [repo](https://github.com/RedHatOfficial/GoCourse)
+
 ### Thank you have a good time
