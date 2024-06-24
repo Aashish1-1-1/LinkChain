@@ -41,7 +41,7 @@
     <script>
 async function fetchLinks() {
     try {
-        const response = await fetch('http://localhost:8080/aashish');
+        const response = await fetch('/aashish');
         const jsonData = await response.json();
         console.log(jsonData);
 
@@ -76,4 +76,3 @@ document.addEventListener('DOMContentLoaded', fetchLinks);
     </script>
 </body>
 </html>
-

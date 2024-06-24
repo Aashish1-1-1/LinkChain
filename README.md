@@ -8,7 +8,7 @@ Just setting example for over engineering using blockchain for trival act of sto
 No need just to learn what's up with this blockchain thing
 
 ## What did i learn
-About blockchain a bit, go routine and concurrency models use channel to communicate between routines etc etc
+About blockchain a bit, go routine and concurrency models used channel to communicate between routines etc etc
 
 ## Disclaimer
 Don't try this at home, time is valuable :/
