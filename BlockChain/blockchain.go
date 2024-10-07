@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+type Somerandstruct struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Score    int32  `json:"score"`
+}
 type Block struct {
 	data         map[string]interface{}
 	hash         string
@@ -104,9 +110,16 @@ func randStr(n int) string {
 	return string(b)
 }
 
-type Somerandstruct struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
-	Score    int32  `json:"score"`
+func MakeBlockChain() {
+	blockChain := CreateBlockchain(3)
+	blockChain.AddBlock("Github", "https://github.com/")
+	blockChain.AddBlock("Linkedin", "https://www.linkedin.com/in")
+	blockChain.AddBlock("Instagram", "https://instagram.com/")
+	blockChain.AddBlock("Twitter", "https://x.com/")
+	for {
+		data := blockChain.GetBlockchainData()
+		if blockChain.IsValid() {
+			fmt.Println(data)
+		}
+	}
 }
