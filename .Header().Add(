@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 
 	"Linkchain/BlockChain"
 )
 
-var blockChain = BlockChain.CreateBlockchain(3)
+var throw = make(chan int)
+var jsondata = make(chan []BlockChain.Jsondata)
 
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -31,10 +31,27 @@ func main() {
 	http.HandleFunc("/", CORS(homePage))
 	http.HandleFunc("/add", CORS(Addlink))
 	http.HandleFunc("/aashish", CORS(ThrowLinks))
-	fmt.Println("Server started on :8080")
-	err := http.ListenAndServe(":8080", nil)
+	go MakeBlockChain()
+
+	fmt.Println("Server started on :3000")
+	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		panic("Error starting server: " + err.Error())
+	}
+}
+
+func MakeBlockChain() {
+	blockChain := BlockChain.CreateBlockchain(3)
+	blockChain.AddBlock("Github", "https://github.com/Aashish1-1-1")
+	blockChain.AddBlock("Linkedin", "https://www.linkedin.com/in/aashish-adhikari-92a958212/")
+	blockChain.AddBlock("Instagram", "https://instagram.com/aashish_em")
+	blockChain.AddBlock("Twitter", "https://x.com/AashishAdh9")
+	for {
+		<-throw
+		data := blockChain.GetBlockchainData()
+		if blockChain.IsValid() {
+			jsondata <- data
+		}
 	}
 }
 
@@ -51,38 +68,16 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func Addlink(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
-		return
-	}
-	var data BlockChain.Jsondata
-	err = json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	_, err = http.Get(data.Link)
-	if err != nil {
-		http.Error(w, "Enter valid link you mf", http.StatusBadRequest)
-		return
-	}
-	blockChain.AddBlock(data.Title, data.Link)
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"message": "Success"}`)
+
 }
 func ThrowLinks(w http.ResponseWriter, r *http.Request) {
-	if blockChain.IsValid() {
-		jsondata, err := json.Marshal(blockChain.GetBlockchainData())
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsondata)
+	throw <- 1
+	data := <-jsondata
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Error(w, "Ur mom", http.StatusInternalServerError)
-	return
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
 }

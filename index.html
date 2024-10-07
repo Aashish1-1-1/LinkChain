@@ -1,78 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LinkChain</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .link-item {
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        }
-        .link-item h4 {
-            margin-bottom: 10px;
-        }
-        .link-item a {
-            display: block;
-            color: #007bff;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .link-item a:hover {
-            color: #0056b3;
-        }
+      .link-item::after {
+        content: "→";
+        font-size: 24px;
+        margin-left: 10px;
+        color: #4b5563;
+      }
+
+      .link-item:last-child::after {
+        content: "";
+      }
     </style>
-</head>
-<body>
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <h2 class="text-center mb-4">LinkChain</h2>
-                <div id="linktree">
-                </div>
-            </div>
-        </div>
+  </head>
+
+  <body class="bg-gray-100">
+    <div class="container mx-auto mt-10 p-4">
+      <div class="text-center mb-8">
+        <h2 class="text-4xl font-bold text-gray-800">LinkChain</h2>
+        <p class="text-gray-600">A chain of your favorite links</p>
+      </div>
+
+      <div
+        id="linktree"
+        class="flex items-center space-x-4 justify-center mb-8"
+      ></div>
+
+      <!-- Form to add new link -->
+      <div class="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Add a New Link</h3>
+        <form id="linkForm" class="space-y-4">
+          <div>
+            <label for="title" class="block text-gray-700">Title</label>
+            <input
+              type="text"
+              id="title"
+              placeholder="Enter title"
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="link" class="block text-gray-700">Link</label>
+            <input
+              type="url"
+              id="link"
+              placeholder="Enter link"
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            type="button"
+            onclick="addLink()"
+            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+          >
+            Add Link
+          </button>
+        </form>
+      </div>
+      <button
+        type="button"
+        onclick="getRandomLink()"
+        class="block mx-auto bg-blue-500 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:bg-blue-600 hover:-translate-y-1 hover:shadow-lg active:bg-blue-700 active:translate-y-0 mt-[3px]"
+      >
+        GetRandomLink
+      </button>
     </div>
 
     <script>
-async function fetchLinks() {
-    try {
-        const response = await fetch('/aashish');
-        const jsonData = await response.json();
-        console.log(jsonData);
+      let jsonData = [];
 
-        const linktreeContainer = document.getElementById('linktree');
-        linktreeContainer.innerHTML = '';
+      async function fetchLinks() {
+        try {
+          const response = await fetch("/aashish");
+          jsonData = await response.json();
+          console.log(jsonData);
 
-        for (let i = 1; i < jsonData.length; i++) {
+          const linktreeContainer = document.getElementById("linktree");
+          linktreeContainer.innerHTML = ""; // Clear previous links
+
+          for (let i = 1; i < jsonData.length; i++) {
             const item = jsonData[i];
-            
-            const linkItem = document.createElement('div');
-            linkItem.classList.add('link-item');
 
-            const platform = document.createElement('h4');
-            platform.textContent = item.Platform;
+            const linkItem = document.createElement("div");
+            linkItem.classList.add(
+              "link-item",
+              "flex",
+              "items-center",
+              "p-4",
+              "bg-white",
+              "shadow-md",
+              "rounded-md",
+            );
 
-            const link = document.createElement('a');
+            const platform = document.createElement("h4");
+            platform.classList.add("mr-4", "font-bold", "text-gray-700");
+            platform.textContent = item.Title;
+
+            const link = document.createElement("a");
+            link.classList.add(
+              "text-blue-500",
+              "hover:text-blue-700",
+              "transition",
+              "duration-300",
+            );
             link.href = item.Link;
             link.textContent = item.Link;
-            link.target = '_blank';
-
+            link.target = "_blank";
             linkItem.appendChild(platform);
             linkItem.appendChild(link);
 
             linktreeContainer.appendChild(linkItem);
+          }
+        } catch (error) {
+          console.error("Error fetching or displaying linktree:", error);
         }
-    } catch (error) {
-        console.error('Error fetching or displaying linktree:', error);
-    }
-}
+      }
 
-document.addEventListener('DOMContentLoaded', fetchLinks);
+      function addLink() {
+        const title = document.getElementById("title").value;
+        const link = document.getElementById("link").value;
+
+        if (title && link) {
+          const newLink = {
+            title: title,
+            link: link,
+          };
+
+          fetch("/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newLink),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("Success:", data);
+              fetchLinks();
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Enter valid link you mf");
+            });
+        } else {
+          alert("Please fill in both fields.");
+        }
+      }
+
+      function getRandomLink() {
+        if (jsonData.length === 0) {
+          alert("No links available!");
+          return;
+        }
+        const randomIndex = Math.floor(Math.random() * jsonData.length);
+        const randomLink = jsonData[randomIndex].Link;
+        window.open(randomLink, "_blank");
+      }
+
+      document.addEventListener("DOMContentLoaded", fetchLinks);
     </script>
-</body>
+  </body>
 </html>
