@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -92,4 +93,20 @@ func (b Blockchain) GetBlockchainData() []Jsondata {
 		jsonData = append(jsonData, Jsondata{Title: Title, Link: link})
 	}
 	return jsonData
+}
+func randStr(n int) string {
+
+	var charset = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+type Somerandstruct struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Score    int32  `json:"score"`
 }

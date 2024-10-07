@@ -86,3 +86,17 @@ func ThrowLinks(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Ur mom", http.StatusInternalServerError)
 	return
 }
+
+func MakeBlockChain() {
+	blockChain := BlockChain.CreateBlockchain(3)
+	blockChain.AddBlock("Github", "https://github.com/")
+	blockChain.AddBlock("Linkedin", "https://www.linkedin.com/in")
+	blockChain.AddBlock("Instagram", "https://instagram.com/")
+	blockChain.AddBlock("Twitter", "https://x.com/")
+	for {
+		data := blockChain.GetBlockchainData()
+		if blockChain.IsValid() {
+			fmt.Println(data)
+		}
+	}
+}
